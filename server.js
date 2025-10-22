@@ -343,6 +343,104 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
+// AI Chat endpoint
+app.post('/chat', async (req, res) => {
+  try {
+    const { message, history } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message required' });
+    }
+
+    // Check if OpenAI API key is configured
+    if (!process.env.OPENAI_API_KEY) {
+      console.log('OpenAI API key not configured, using fallback response');
+      return res.json({
+        success: true,
+        reply: `I'm the PCFind AI Assistant! I can help you with:\n\n• PC component recommendations\n• Compatibility checking\n• Budget build suggestions\n• Performance comparisons\n• Upgrade advice\n\nYou asked: "${message}"\n\n⚠️ Note: AI is not fully configured yet. Please set the OPENAI_API_KEY environment variable on Render to enable full AI responses.`
+      });
+    }
+
+    // Call OpenAI API
+    const fetch = (await import('node-fetch')).default;
+    const systemPrompt = `You are a helpful PC building assistant for PCFind, a Philippines-based PC parts website. You help users with:
+- PC component recommendations and compatibility
+- Budget build suggestions (prices in Philippine Pesos ₱)
+- Performance comparisons
+- Upgrade advice
+- Troubleshooting
+
+Be friendly, concise, and practical. When discussing prices, use Philippine Pesos (₱). Recommend parts available in the Philippines (Lazada, Shopee, PC Express, EasyPC). Keep responses under 200 words unless detailed explanations are needed.`;
+
+    const messages = [
+      { role: 'system', content: systemPrompt }
+    ];
+
+    // Add conversation history (last 10 messages)
+    if (history && Array.isArray(history)) {
+      history.slice(-10).forEach(msg => {
+        if (msg.role === 'user' || msg.role === 'assistant') {
+          messages.push({ role: msg.role, content: msg.content });
+        }
+      });
+    }
+
+    // Add current message
+    messages.push({ role: 'user', content: message });
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+        messages: messages,
+        max_tokens: 500,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      console.error('OpenAI API error:', response.status, errorData);
+      
+      // Return detailed error for debugging
+      let errorMsg = 'Sorry, I encountered an error with the AI service.';
+      if (response.status === 401) {
+        errorMsg = '⚠️ OpenAI API key is invalid. Please check your OPENAI_API_KEY on Render.';
+      } else if (response.status === 429) {
+        errorMsg = '⚠️ OpenAI rate limit exceeded or quota reached. Check your OpenAI account billing.';
+      } else if (response.status === 400) {
+        errorMsg = `⚠️ Invalid request to OpenAI: ${errorData.error?.message || 'Unknown error'}`;
+      }
+      
+      return res.json({
+        success: false,
+        reply: errorMsg,
+        debug: { status: response.status, error: errorData }
+      });
+    }
+
+    const data = await response.json();
+    const reply = data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
+
+    console.log('✅ OpenAI response successful');
+    res.json({
+      success: true,
+      reply: reply.trim()
+    });
+
+  } catch (error) {
+    console.error('❌ Chat error:', error.message, error.stack);
+    res.status(500).json({ 
+      error: 'Chat service error',
+      reply: `⚠️ Error: ${error.message || 'Unknown error'}. The backend is running but the AI call failed. Check Render logs for details.`
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Auth server running on http://localhost:${PORT}`);
 });
