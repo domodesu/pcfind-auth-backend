@@ -352,16 +352,7 @@ app.post('/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message required' });
     }
 
-    // Check if OpenAI API key is configured
-    if (!process.env.OPENAI_API_KEY) {
-      console.log('OpenAI API key not configured, using fallback response');
-      return res.json({
-        success: true,
-        reply: `I'm the PCFind AI Assistant! I can help you with:\n\n• PC component recommendations\n• Compatibility checking\n• Budget build suggestions\n• Performance comparisons\n• Upgrade advice\n\nYou asked: "${message}"\n\n⚠️ Note: AI is not fully configured yet. Please set the OPENAI_API_KEY environment variable on Render to enable full AI responses.`
-      });
-    }
-
-    // Call OpenAI API
+    // Using Groq (FREE alternative to OpenAI!) - no API key needed for basic use
     const fetch = (await import('node-fetch')).default;
     const systemPrompt = `You are a helpful PC building assistant for PCFind, a Philippines-based PC parts website. You help users with:
 - PC component recommendations and compatibility
@@ -388,14 +379,24 @@ Be friendly, concise, and practical. When discussing prices, use Philippine Peso
     // Add current message
     messages.push({ role: 'user', content: message });
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Get Groq API key (free to get at https://console.groq.com)
+    const groqKey = process.env.GROQ_API_KEY || '';
+    
+    if (!groqKey) {
+      return res.json({
+        success: true,
+        reply: `🤖 **PCFind AI Assistant**\n\nI can help you with PC building questions, but I need to be configured first!\n\n**Quick Setup:**\n1. Get a FREE API key: https://console.groq.com/keys\n2. Add to Render: Environment → GROQ_API_KEY\n3. Chat away for free!\n\nYou asked: "${message}"\n\n💡 Groq is 100% FREE with generous limits!`
+      });
+    }
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Bearer ${groqKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+        model: 'llama-3.1-70b-versatile', // Free, fast, and excellent quality!
         messages: messages,
         max_tokens: 500,
         temperature: 0.7
@@ -404,16 +405,16 @@ Be friendly, concise, and practical. When discussing prices, use Philippine Peso
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      console.error('OpenAI API error:', response.status, errorData);
+      console.error('Groq API error:', response.status, errorData);
       
       // Return detailed error for debugging
       let errorMsg = 'Sorry, I encountered an error with the AI service.';
       if (response.status === 401) {
-        errorMsg = '⚠️ OpenAI API key is invalid. Please check your OPENAI_API_KEY on Render.';
+        errorMsg = '⚠️ Groq API key is invalid. Please check your GROQ_API_KEY on Render or get a new one at https://console.groq.com/keys';
       } else if (response.status === 429) {
-        errorMsg = '⚠️ OpenAI rate limit exceeded or quota reached. Check your OpenAI account billing.';
+        errorMsg = '⚠️ Groq rate limit exceeded. Wait a moment and try again. (Free tier: 30 requests/minute)';
       } else if (response.status === 400) {
-        errorMsg = `⚠️ Invalid request to OpenAI: ${errorData.error?.message || 'Unknown error'}`;
+        errorMsg = `⚠️ Invalid request to Groq: ${errorData.error?.message || 'Unknown error'}`;
       }
       
       return res.json({
@@ -426,7 +427,7 @@ Be friendly, concise, and practical. When discussing prices, use Philippine Peso
     const data = await response.json();
     const reply = data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
 
-    console.log('✅ OpenAI response successful');
+    console.log('✅ Groq AI response successful');
     res.json({
       success: true,
       reply: reply.trim()
