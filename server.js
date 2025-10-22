@@ -396,7 +396,7 @@ Be friendly, concise, and practical. When discussing prices, use Philippine Peso
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile', // Free, fast, and excellent quality!
+        model: 'llama-3.3-70b-versatile', // Latest free model - fast and excellent quality!
         messages: messages,
         max_tokens: 500,
         temperature: 0.7
