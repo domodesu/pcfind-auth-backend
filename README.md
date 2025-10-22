@@ -1,6 +1,6 @@
 # PCFind Authentication Backend
 
-Node.js + Express authentication server with local JSON file storage.
+Node.js + Express authentication server with OTP verification via Email/SMS.
 
 ## Setup
 
@@ -10,7 +10,27 @@ cd auth-backend
 npm install
 ```
 
-2. Start the server:
+2. Configure email/SMS services (for production):
+
+Create a `.env` file in this directory:
+```env
+# Email (Brevo/Sendinblue) - Free 300 emails/day at https://www.brevo.com/
+BREVO_SMTP_HOST=smtp-relay.brevo.com
+BREVO_SMTP_USER=your_brevo_login_email
+BREVO_SMTP_PASS=your_brevo_smtp_key
+BREVO_FROM_EMAIL=noreply@yourdomain.com
+
+# SMS (Twilio) - Free trial $15 credit at https://www.twilio.com/
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=+1234567890
+
+PORT=3000
+```
+
+**Note**: For development/testing without email/SMS services, OTPs will be shown in console logs and returned in API responses.
+
+3. Start the server:
 ```bash
 npm start
 ```
@@ -20,7 +40,7 @@ Or for development with auto-reload:
 npm run dev
 ```
 
-3. Open http://localhost:3000 in your browser
+4. Open http://localhost:3000 in your browser
 
 ## Deployment
 
