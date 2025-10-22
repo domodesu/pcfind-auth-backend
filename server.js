@@ -310,6 +310,26 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Username and password required' });
     }
 
+    // Check demo accounts first (for easy testing)
+    const demoAccounts = {
+      'domo': { password: 'Furi123', id: 'demo_1', username: 'Domo', email: 'domo@pcfind.demo' },
+      'zero': { password: 'Yoi123', id: 'demo_2', username: 'Zero', email: 'zero@pcfind.demo' }
+    };
+
+    const demoUser = demoAccounts[username.toLowerCase()];
+    if (demoUser && password === demoUser.password) {
+      return res.json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          id: demoUser.id,
+          username: demoUser.username,
+          email: demoUser.email
+        }
+      });
+    }
+
+    // Check registered users
     const users = readUsers();
     const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
