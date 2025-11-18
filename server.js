@@ -44,7 +44,23 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 }
 
 // Middleware
-app.use(cors()); // Allow requests from GitHub Pages
+const allowedOrigins = [
+  'https://domodesu.github.io',
+  'https://domodesu.github.io/PCFind-update',
+  'http://localhost:4173',
+  'http://localhost:4174'
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+}));
+app.options('*', cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
