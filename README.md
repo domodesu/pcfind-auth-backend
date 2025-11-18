@@ -14,10 +14,8 @@ npm install
 
 Create a `.env` file in this directory:
 ```env
-# Email (Brevo/Sendinblue) - Free 300 emails/day at https://www.brevo.com/
-BREVO_SMTP_HOST=smtp-relay.brevo.com
-BREVO_SMTP_USER=your_brevo_login_email
-BREVO_SMTP_PASS=your_brevo_smtp_key
+# Email (Brevo) - Free 300 transactional emails/day at https://www.brevo.com/
+BREVO_API_KEY=your_brevo_api_key
 BREVO_FROM_EMAIL=noreply@yourdomain.com
 BREVO_FROM_NAME=PCFind Support
 
