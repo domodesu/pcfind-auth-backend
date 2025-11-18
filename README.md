@@ -19,8 +19,17 @@ BREVO_SMTP_HOST=smtp-relay.brevo.com
 BREVO_SMTP_USER=your_brevo_login_email
 BREVO_SMTP_PASS=your_brevo_smtp_key
 BREVO_FROM_EMAIL=noreply@yourdomain.com
+BREVO_FROM_NAME=PCFind Support
 
-# SMS (Twilio) - Free trial $15 credit at https://www.twilio.com/
+# SMS - Vonage (preferred, no verification needed) or Twilio (fallback)
+# Option 1: Vonage (recommended - can send to any number on trial)
+VONAGE_API_KEY=your_vonage_api_key
+VONAGE_API_SECRET=your_vonage_api_secret
+VONAGE_BRAND_NAME=PCFind
+# OR use a virtual number:
+# VONAGE_PHONE_NUMBER=+1234567890
+
+# Option 2: Twilio (fallback - requires number verification on trial)
 TWILIO_ACCOUNT_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE_NUMBER=+1234567890

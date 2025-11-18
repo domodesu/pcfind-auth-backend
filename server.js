@@ -26,7 +26,17 @@ const emailTransporter = nodemailer.createTransport({
   }
 });
 
-// Twilio SMS (optional)
+// Vonage SMS (preferred - no verification needed for trial)
+let vonageClient = null;
+if (process.env.VONAGE_API_KEY && process.env.VONAGE_API_SECRET) {
+  const { Vonage } = require('@vonage/server-sdk');
+  vonageClient = new Vonage({
+    apiKey: process.env.VONAGE_API_KEY,
+    apiSecret: process.env.VONAGE_API_SECRET
+  });
+}
+
+// Twilio SMS (fallback - optional)
 let twilioClient = null;
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
   const twilio = require('twilio');
@@ -146,18 +156,57 @@ async function sendEmailOTP(email, otp) {
 }
 
 async function sendSMSOTP(phone, otp) {
-  if (!twilioClient) return false;
-  try {
-    await twilioClient.messages.create({
-      body: `Your PCFind verification code is: ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone
-    });
-    return true;
-  } catch (error) {
-    console.error('SMS send error:', error);
-    return false;
+  // Try Vonage first (no verification needed for trial)
+  if (vonageClient) {
+    try {
+      const from = process.env.VONAGE_BRAND_NAME || process.env.VONAGE_PHONE_NUMBER || 'PCFind';
+      const text = `Your PCFind verification code is: ${otp}`;
+      
+      const response = await vonageClient.sms.send({
+        to: phone,
+        from: from,
+        text: text
+      });
+      
+      if (response.messages && response.messages[0].status === '0') {
+        console.log(`✅ SMS sent via Vonage to ${phone}. Message ID: ${response.messages[0]['message-id']}`);
+        return true;
+      } else {
+        console.error('❌ Vonage SMS error:', response.messages[0]['error-text']);
+        // Fall through to try Twilio
+      }
+    } catch (error) {
+      console.error('❌ Vonage SMS error:', error.message || error);
+      // Fall through to try Twilio
+    }
   }
+  
+  // Fallback to Twilio
+  if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
+    try {
+      const message = await twilioClient.messages.create({
+        body: `Your PCFind verification code is: ${otp}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: phone
+      });
+      console.log(`✅ SMS sent via Twilio. SID: ${message.sid}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Twilio SMS error:', error.message || error);
+      console.error('Error details:', {
+        code: error.code,
+        status: error.status,
+        moreInfo: error.moreInfo
+      });
+      return false;
+    }
+  }
+  
+  // No SMS service configured
+  if (!vonageClient && !twilioClient) {
+    console.error('❌ No SMS service configured. Set up Vonage or Twilio environment variables.');
+  }
+  return false;
 }
 
 // Routes
@@ -192,10 +241,18 @@ app.post('/send-otp', async (req, res) => {
       }
     } else if (phone) {
       sent = await sendSMSOTP(phone, otp);
-      if (!sent && !twilioClient) {
-        // Development mode: return OTP in response
+      if (!sent && !vonageClient && !twilioClient) {
+        // Development mode: return OTP in response if no SMS service configured
         console.log(`[DEV] OTP for ${phone}: ${otp}`);
         return res.json({ success: true, message: 'OTP sent', devOTP: otp });
+      }
+      if (!sent) {
+        // SMS service is configured but sending failed
+        console.error(`Failed to send SMS to ${phone}. Check SMS service logs.`);
+        return res.status(500).json({ 
+          error: 'Failed to send OTP via SMS. Please check server logs or try again later.',
+          devOTP: process.env.NODE_ENV === 'development' ? otp : undefined
+        });
       }
     }
 
