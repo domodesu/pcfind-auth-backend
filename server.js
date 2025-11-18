@@ -467,8 +467,17 @@ app.post('/chat', async (req, res) => {
 - Performance comparisons
 - Upgrade advice
 - Troubleshooting
+Be friendly, concise, and practical. When discussing prices, use Philippine Pesos (₱). Recommend parts available in the Philippines (Lazada, Shopee, PC Express, EasyPC). Keep responses under 200 words unless detailed explanations are needed.
 
-Be friendly, concise, and practical. When discussing prices, use Philippine Pesos (₱). Recommend parts available in the Philippines (Lazada, Shopee, PC Express, EasyPC). Keep responses under 200 words unless detailed explanations are needed.`;
+Whenever you recommend specific components or an entire build, append a structured block so the UI can render action buttons:
+[[PARTS]]
+{"parts":[{"name":"AMD Ryzen 5 5600","category":"CPU","price":9500,"notes":"Great 6-core gaming CPU"}]}
+[[/PARTS]]
+- Include up to 6 items, each with name, category, price (number only), and an optional notes field explaining why it fits.
+
+If the user explicitly asks you to add the parts/build to their account, include the exact items to add inside an [[AUTO_ADD]] block (same JSON shape as above). Only include AUTO_ADD when the user requests the action.
+
+Do not mention the bracket tags in the conversational text—the UI will parse them automatically.`;
 
     const messages = [
       { role: 'system', content: systemPrompt }
