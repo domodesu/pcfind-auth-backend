@@ -94,66 +94,66 @@ async function sendEmailOTP(email, otp) {
     const senderName = process.env.BREVO_FROM_NAME || 'PCFind';
 
     const htmlTemplate = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5; }
-          .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center; color: white; }
-          .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-          .content { padding: 40px 30px; }
-          .otp-box { background: #f8f9fa; border: 2px dashed #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0; }
-          .otp-code { font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #667eea; font-family: 'Courier New', monospace; }
-          .info { color: #666; font-size: 14px; margin: 20px 0; }
-          .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; margin: 20px 0; border-radius: 4px; }
-          .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e9ecef; }
-          @media only screen and (max-width: 600px) {
-            .container { margin: 0; border-radius: 0; }
-            .content { padding: 30px 20px; }
-            .otp-code { font-size: 28px; letter-spacing: 4px; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>🖥️ PCFind</h1>
-            <p style="margin: 10px 0 0; opacity: 0.9;">PC Builder & Price Comparison</p>
-          </div>
-          <div class="content">
-            <h2 style="color: #333; margin-top: 0;">Welcome to PCFind! 👋</h2>
-            <p>You're almost there! Use the verification code below to complete your registration:</p>
-            
-            <div class="otp-box">
-              <div style="color: #666; font-size: 14px; margin-bottom: 10px;">Your Verification Code</div>
-              <div class="otp-code">${otp}</div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5; }
+            .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center; color: white; }
+            .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+            .content { padding: 40px 30px; }
+            .otp-box { background: #f8f9fa; border: 2px dashed #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0; }
+            .otp-code { font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #667eea; font-family: 'Courier New', monospace; }
+            .info { color: #666; font-size: 14px; margin: 20px 0; }
+            .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; margin: 20px 0; border-radius: 4px; }
+            .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 12px; border-top: 1px solid #e9ecef; }
+            @media only screen and (max-width: 600px) {
+              .container { margin: 0; border-radius: 0; }
+              .content { padding: 30px 20px; }
+              .otp-code { font-size: 28px; letter-spacing: 4px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🖥️ PCFind</h1>
+              <p style="margin: 10px 0 0; opacity: 0.9;">PC Builder & Price Comparison</p>
             </div>
-            
-            <p class="info">
-              ⏱️ <strong>This code expires in 10 minutes</strong><br>
-              🔒 For your security, never share this code with anyone
-            </p>
-            
-            <div class="warning">
-              <strong>⚠️ Didn't request this?</strong><br>
-              If you didn't try to register for PCFind, you can safely ignore this email.
+            <div class="content">
+              <h2 style="color: #333; margin-top: 0;">Welcome to PCFind! 👋</h2>
+              <p>You're almost there! Use the verification code below to complete your registration:</p>
+              
+              <div class="otp-box">
+                <div style="color: #666; font-size: 14px; margin-bottom: 10px;">Your Verification Code</div>
+                <div class="otp-code">${otp}</div>
+              </div>
+              
+              <p class="info">
+                ⏱️ <strong>This code expires in 10 minutes</strong><br>
+                🔒 For your security, never share this code with anyone
+              </p>
+              
+              <div class="warning">
+                <strong>⚠️ Didn't request this?</strong><br>
+                If you didn't try to register for PCFind, you can safely ignore this email.
+              </div>
+              
+              <p style="margin-top: 30px;">
+                Happy building!<br>
+                <strong>The PCFind Team</strong>
+              </p>
             </div>
-            
-            <p style="margin-top: 30px;">
-              Happy building!<br>
-              <strong>The PCFind Team</strong>
-            </p>
+            <div class="footer">
+              <p style="margin: 0 0 10px;">PCFind - Your Ultimate PC Building Companion</p>
+              <p style="margin: 0; opacity: 0.7;">This is an automated message, please do not reply to this email.</p>
+            </div>
           </div>
-          <div class="footer">
-            <p style="margin: 0 0 10px;">PCFind - Your Ultimate PC Building Companion</p>
-            <p style="margin: 0; opacity: 0.7;">This is an automated message, please do not reply to this email.</p>
-          </div>
-        </div>
-      </body>
-      </html>
+        </body>
+        </html>
     `;
 
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -215,21 +215,21 @@ async function sendSMSOTP(phone, otp) {
   if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
     try {
       const message = await twilioClient.messages.create({
-        body: `Your PCFind verification code is: ${otp}`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: phone
-      });
+      body: `Your PCFind verification code is: ${otp}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phone
+    });
       console.log(`✅ SMS sent via Twilio. SID: ${message.sid}`);
-      return true;
-    } catch (error) {
+    return true;
+  } catch (error) {
       console.error('❌ Twilio SMS error:', error.message || error);
       console.error('Error details:', {
         code: error.code,
         status: error.status,
         moreInfo: error.moreInfo
       });
-      return false;
-    }
+    return false;
+  }
   }
   
   // No SMS service configured
@@ -461,13 +461,22 @@ app.post('/chat', async (req, res) => {
 
     // Using Groq (FREE alternative to OpenAI!) - no API key needed for basic use
     const fetch = (await import('node-fetch')).default;
-    const systemPrompt = `You are a helpful PC building assistant for PCFind, a Philippines-based PC parts website. You help users with:
-- PC component recommendations and compatibility
-- Budget build suggestions (prices in Philippine Pesos ₱)
-- Performance comparisons
-- Upgrade advice
-- Troubleshooting
-Be friendly, concise, and practical. When discussing prices, use Philippine Pesos (₱). Recommend parts available in the Philippines (Lazada, Shopee, PC Express, EasyPC). Keep responses under 200 words unless detailed explanations are needed.
+    const systemPrompt = `You are a PC hardware specialist assistant for PCFind, a Philippines-based PC parts website. You ONLY help with PC hardware-related questions. Your expertise is STRICTLY limited to:
+
+- PC component specifications (CPU, GPU, RAM, Storage, PSU, Motherboard, Case, Cooling)
+- PC component compatibility and recommendations
+- PC build configurations and suggestions
+- Hardware performance comparisons and benchmarks
+- PC component upgrades and replacements
+- PC hardware troubleshooting and diagnostics
+- PC component prices and availability (Philippine Pesos ₱)
+
+IMPORTANT RULES:
+1. ONLY answer questions about PC hardware components, builds, and specifications
+2. If asked about non-PC topics (general knowledge, software, games, apps, other electronics, etc.), politely decline: "I'm a PC hardware specialist. I can only help with PC component questions like CPUs, GPUs, motherboards, RAM, storage, PSUs, cases, and cooling. What PC hardware can I help you with?"
+3. Stay focused on technical PC hardware details: specifications, compatibility, performance, prices
+4. When discussing prices, use Philippine Pesos (₱). Recommend parts available in the Philippines (Lazada, Shopee, PC Express, EasyPC)
+5. Be friendly, concise, and practical. Keep responses under 200 words unless detailed technical explanations are needed
 
 Whenever you recommend specific components or an entire build, append a structured block so the UI can render action buttons:
 [[PARTS]]
